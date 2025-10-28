@@ -27,13 +27,19 @@ def calculate_mean_prediction_error(env, action_sequence, models, data_statistic
     return mpe, true_states, pred_states
 
 def perform_actions(env, actions):
-    ob = env.reset()
+    result = env.reset()
+    ob = result[0] if isinstance(result, tuple) else result
     obs, acs, rewards, next_obs, terminals, image_obs = [], [], [], [], [], []
     steps = 0
     for ac in actions:
         obs.append(ob)
         acs.append(ac)
-        ob, rew, done, _ = env.step(ac)
+        step_result = env.step(ac)
+        if len(step_result) == 5:  # gymnasium
+            ob, rew, terminated, truncated, _ = step_result
+            done = terminated or truncated
+        else:  # gym
+            ob, rew, done, _ = step_result
         # add the observation after taking a step to next_obs
         next_obs.append(ob)
         rewards.append(rew)
@@ -55,34 +61,120 @@ def mean_squared_error(a, b):
 ############################################
 
 def sample_trajectory(env, policy, max_path_length, render=False, render_mode=('rgb_array')):
-    ob = env.reset()
+    result = env.reset()
+    ob = result[0] if isinstance(result, tuple) else result
     obs, acs, rewards, next_obs, terminals, image_obs = [], [], [], [], [], []
     steps = 0
     while True:
         if render:  # feel free to ignore this for now
             if 'rgb_array' in render_mode:
                 if hasattr(env.unwrapped, 'sim'):
-                    if 'track' in env.unwrapped.model.camera_names:
-                        image_obs.append(env.unwrapped.sim.render(camera_name='track', height=500, width=500)[::-1])
-                    else:
-                        image_obs.append(env.unwrapped.sim.render(height=500, width=500)[::-1])
+                    # Use MuJoCo sim.render() method for proper rendering
+                    try:
+                        rendered_image = env.unwrapped.sim.render(height=500, width=500)
+                        if rendered_image is not None:
+                            # MuJoCo returns images in BGR format, convert to RGB
+                            image_obs.append(rendered_image[::-1])  # Reverse channels BGR->RGB
+                            print(f"Successfully rendered MuJoCo image {len(image_obs)}, shape: {rendered_image.shape}")
+                        else:
+                            print("MuJoCo sim.render() returned None")
+                    except Exception as e:
+                        print(f"MuJoCo sim.render() failed: {e}")
+                        # If sim.render fails, try alternative approaches
+                        try:
+                            # Try with camera name if available
+                            if hasattr(env.unwrapped.model, 'camera_names') and 'track' in env.unwrapped.model.camera_names:
+                                rendered_image = env.unwrapped.sim.render(camera_name='track', height=500, width=500)
+                                if rendered_image is not None:
+                                    image_obs.append(rendered_image[::-1])
+                                    print(f"Successfully rendered MuJoCo image with track camera {len(image_obs)}, shape: {rendered_image.shape}")
+                        except Exception as e2:
+                            print(f"MuJoCo track camera render failed: {e2}")
+                            # If all MuJoCo rendering fails, skip this frame
+                            pass
                 else:
-                    image_obs.append(env.render(mode=render_mode))
+                    # For Gymnasium MuJoCo environments, try different render approaches
+                    rendered_image = None
+                    
+                    # Try setting render mode as attribute first
+                    try:
+                        if hasattr(env.unwrapped, 'render_mode'):
+                            env.unwrapped.render_mode = 'rgb_array'
+                        elif hasattr(env, 'render_mode'):
+                            env.render_mode = 'rgb_array'
+                        
+                        # Now try to render
+                        rendered_image = env.render()
+                        if rendered_image is not None:
+                            image_obs.append(rendered_image)
+                    except Exception as e:
+                        # If setting mode attribute fails, try other approaches
+                        try:
+                            # Try calling render with rgb_array as positional argument
+                            rendered_image = env.render('rgb_array')
+                            if rendered_image is not None:
+                                image_obs.append(rendered_image)
+                        except Exception as e2:
+                            # If all render methods fail, skip this frame
+                            pass
             if 'human' in render_mode:
-                env.render(mode=render_mode)
+                try:
+                    env.unwrapped.render(mode='human')
+                except (TypeError, AttributeError):
+                    # Fallback for wrappers that don't support mode parameter
+                    try:
+                        env.unwrapped.render()
+                    except (AttributeError, Exception):
+                        # If render fails completely, skip rendering
+                        pass
                 time.sleep(env.model.opt.timestep)
-
-        # TODO: get this from hw1
-        raise NotImplementedError
+        obs.append(ob)
+        ac = policy.get_action(ob)
+        ac = ac[0]
+        acs.append(ac)
+        step_result = env.step(ac)
+        if len(step_result) == 5:  # gymnasium
+            ob, rew, terminated, truncated, _ = step_result
+            done = terminated or truncated
+        else:  # gym
+            ob, rew, done, _ = step_result
+        # add the observation after taking a step to next_obs
+        next_obs.append(ob)
+        rewards.append(rew)
+        steps += 1
+        # If the episode ended, the corresponding terminal value is 1
+        # otherwise, it is 0
+        if done or steps > max_path_length:
+            terminals.append(1)
+            break
+        else:
+            terminals.append(0)
     return Path(obs, image_obs, acs, rewards, next_obs, terminals)
 
 def sample_trajectories(env, policy, min_timesteps_per_batch, max_path_length, render=False, render_mode=('rgb_array')):
-    # TODO: get this from hw1
-    raise NotImplementedError
+    timesteps_this_batch = 0
+    paths = []
+    while timesteps_this_batch < min_timesteps_per_batch:
+
+        #collect rollout
+        path = sample_trajectory(env, policy, max_path_length, render, render_mode)
+        paths.append(path)
+
+        #count steps
+        timesteps_this_batch += get_pathlength(path)
+        print('At timestep:    ', timesteps_this_batch, '/', min_timesteps_per_batch, end='\r')
+
+    return paths, timesteps_this_batch
 
 def sample_n_trajectories(env, policy, ntraj, max_path_length, render=False, render_mode=('rgb_array')):
-    # TODO: get this from hw1
-    raise NotImplementedError
+
+    paths = []
+    for i in range(ntraj):
+        # collect rollout
+        path = sample_trajectory(env, policy, max_path_length, render, render_mode)
+        paths.append(path)
+
+    return paths
 
 ############################################
 ############################################

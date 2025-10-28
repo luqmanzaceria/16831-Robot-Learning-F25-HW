@@ -21,7 +21,7 @@
 \usepackage{booktabs}       % professional-quality tables
 \usepackage{amsfonts}       % blackboard math symbols
 \usepackage{nicefrac}       % compact symbols for 1/2, etc.
-\usepackage{microtype}      % microtypography
+\usepackage[expansion=false]{microtype}      % microtypography
 \usepackage{xcolor}         % colors
 \usepackage{amsmath,amssymb} % define this before the line numbering.
 \usepackage{makecell}
@@ -90,7 +90,7 @@ backgroundcolor = \color{light-yellow}
 \begin{centering}
     {\Large Assignment 1: Imitation Learning} \\
     \vspace{.25cm}
-    \textbf{Andrew ID:} \texttt{YOUR ID} \\
+    \textbf{Andrew ID:} \texttt{lzaceria} \\
     \textbf{Collaborators:} \texttt{YOUR COLLABORATORS}\\ 
 \end{centering}
 
@@ -106,8 +106,8 @@ backgroundcolor = \color{light-yellow}
     \toprule[1.0pt]
     Metric/Env & Ant-v2 & Humanoid-v2 & Walker2d-v2 & Hopper-v2 & HalfCheetah-v2 \\
     \midrule
-    Mean  & xxx & xxx & xxx & xxx & xxx \\
-    Std.  & xxx & xxx & xxx  & xxx  & xxx \\
+    Mean  & 4713.653 & 10344.518 & 5566.846 & 3772.670 & 4205.778 \\
+    Std.  & 12.197 & 20.981 & 9.238  & 1.948  & 83.039 \\
     \bottomrule[1.0pt]
     \end{tabular}%
   \label{tab:p2}%
@@ -117,36 +117,42 @@ backgroundcolor = \color{light-yellow}
 \# TODO
 \begin{table}[htbp]
   \centering
-  \caption{Fill your results in this table, listing hyperparameters in this caption.}
+  \caption{BC vs Expert performance comparison. \\ Hyperparameters: learning\_rate=4e-3, n\_layers=5, n\_iter=1, eval\_batch\_size=5000, ep\_len=1000 (approximately 5 evaluation trajectories per environment). \\ Ant-v2 achieves 91.7\% expert performance (>30\% threshold), while Humanoid-v2 achieves 3.1\% expert performance (<30\% threshold).}
     \begin{tabular}{ccccc}
     \toprule[1.0pt]
-    Env   & \multicolumn{2}{c}{Ant-v2} & \multicolumn{2}{c}{[Another Env]} \\
+    Env   & \multicolumn{2}{c}{Ant-v2} & \multicolumn{2}{c}{Humanoid-v2} \\
     \midrule
     Metric & Mean  & Std.  & Mean  & Std. \\
-    Expert & xxx & xxx & xxx & xxx \\
-    BC    & xxx & xxx & xxx & xxx \\
+    Expert & 4713.653 & 12.197 & 10344.518 & 20.981 \\
+    BC    & 4323.741 & 509.877 & 320.130 & 48.081 \\
     \bottomrule[1.0pt]
     \end{tabular}%
   \label{tab:p3}%
 \end{table}%
 
 \subsection{Part 4 (3 pt)}
-\# TODO, fill in the \fref{fig:p4}, provide some analysis.
+I tested the learning rate hyperparameter on Ant-v2, varying it from 1e-4 to 5e-2. Learning rate controls the gradient step size during training.
 
-\begin{figure*}[!h]
+The results show optimal performance at lr=4e-3 (4103 return), with our Part 3 result of 4324 falling within the standard deviation range. Lower rates (1e-4) lead to undertraining, while higher rates (5e-2) cause instability. The performance drops significantly at the extremes.
+
+See Figure~\ref{fig:1} on the next page for a summary of these results.
+
+\begin{figure}[H]
 	\centering
-\includegraphics[width=0.5\columnwidth]{path/to/your/image.png}
-	\caption{BC agent’s performance varies with the value of ??? parameter in ??? environment.}
-	\label{fig:p4}
-\end{figure*}
+	\includegraphics[width=0.8\columnwidth]{learning_rate_experiment_ant.png}
+	\caption{BC agent's performance varies with the learning rate parameter in the Ant-v2 environment. Peak performance at lr=4e-3, with worse performance at very low and high rates. Error bars show std over 5 runs.}
+	\label{fig:1}
+\end{figure}
+
+\vspace{2cm} % Add vertical space to help the figure appear above the next section
 
 \section{DAgger (5.25 pt)}
 \subsection{Part 2 (5.25 pt)}
-\# TODO, Report the results for Ant-v2 and [Another Env] in \fref{fig:p5}:
+Report the results for Ant-v2 and HalfCheetah-v2 in \fref{fig:p5}:
 \begin{figure*}[!h]
 	\centering
-	\includegraphics[width=1.0\columnwidth]{path/to/your/image.png}
-	\caption{Learning curve, plotting the number of DAgger iterations vs. the policy’s mean return, with error bars to show the standard deviation. Please show the Ant-v2 environment results on the left and the results from [Another Env] on the right.}
+	\includegraphics[width=0.8\textwidth]{dagger_results_figure.png}
+	\caption{Learning curve, plotting the number of DAgger iterations vs. the policy's mean return, with error bars to show the standard deviation. Please show the Ant-v2 environment results on the left and the results from HalfCheetah-v2 on the right. Network architecture: 3-layer MLP. DAgger was run for 8 iterations with expert relabeling at each iteration.}
 	\label{fig:p5}
 \end{figure*}
 

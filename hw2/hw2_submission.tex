@@ -69,7 +69,7 @@ backgroundcolor = \color{light-yellow}
 \end{centering}
 \vspace{0.25cm}
 
-\textbf{Andrew ID:} \texttt{Write your Andrew ID here.} \\
+\textbf{Andrew ID:} \texttt{lzaceria} \\
 \textbf{Collaborators:} \texttt{Write the Andrew IDs of your collaborators here (if any).}\\ 
 \textbf{NOTE:} Please do \textbf{NOT} change the sizes of the answer blocks or plots.
 
@@ -108,59 +108,86 @@ python rob831/scripts/run_hw2.py --env_name CartPole-v0 -n 150 -b 6000 \
 
 \subsubsubsection{Small batch -- \lbrack1 points\rbrack}
 \begin{answer}[title=Q5.1.2.1,height=9.5cm,width=\linewidth]
-% TODO
 \centering
-\includegraphics[height=8cm]{example-image-a}
+\includegraphics[height=8cm]{plots_submission/small_batch_learning_curves.pdf}
 \end{answer}
 
 \subsubsubsection{Large batch -- \lbrack1 points\rbrack}
 \begin{answer}[title=Q5.1.2.2,height=9.5cm,width=\linewidth]
-% TODO
 \centering
-\includegraphics[height=8cm]{example-image-a}
+\includegraphics[height=8cm]{plots_submission/large_batch_learning_curves.pdf}
 \end{answer}
 
 \subsubsection{Analysis}
 
 \subsubsubsection{Value estimator -- \lbrack1 points\rbrack}
 \begin{answer}[title=Q5.1.3.1,height=4cm,width=\linewidth]
-% TODO
+Reward-to-go performs better than trajectory-centric.
 \end{answer}
 
 \subsubsubsection{Advantage standardization -- \lbrack1 points\rbrack}
 \begin{answer}[title=Q5.1.3.2,height=4cm,width=\linewidth]
-% TODO
+Yes, advantage standardization helped.
 \end{answer}
 
 \subsubsubsection{Batch size -- \lbrack1 points\rbrack}
 \begin{answer}[title=Q5.1.3.3,height=4cm,width=\linewidth]
-% TODO
+Yes, the batch size made an impact. A bigger batch size generally improves performance.
 \end{answer}
 
 \subsection{Experiment 2 (InvertedPendulum) -- \lbrack4 points total\rbrack}
 
 \subsubsection{Configurations -- \lbrack1.5 points\rbrack}
 \begin{answer}[title=Q5.2.1,height=10cm,width=\linewidth]
-% TODO
 \begin{minted}
 [framesep=2mm, fontsize=\scriptsize, breaklines]
 {bash}
-python rob831/scripts/run_hw2.py --env_name InvertedPendulum-v4 \
-    --ep_len 1000 --discount 0.92 -n 100 -l 2 -s 64 -b <b*> -lr <r*> -rtg \
-    --exp_name q2_b<b*>_r<r*>
+python rob831/scripts/run_hw2.py \
+    --env_name InvertedPendulum-v4 \
+    --ep_len 1000 \
+    --discount 0.92 \
+    -n 100 \
+    -l 2 \
+    -s 64 \
+    -b 50 \
+    -lr 0.02 \
+    -rtg \
+    --exp_name q2_b50_r0.02_test
+python rob831/scripts/run_hw2.py \
+    --env_name InvertedPendulum-v4 \
+    --ep_len 1000 \
+    --discount 0.92 \
+    -n 100 \
+    -l 2 \
+    -s 64 \
+    -b 40 \
+    -lr 0.02 \
+    -rtg \
+    --exp_name q2_b40_r0.02_test
+python rob831/scripts/run_hw2.py \
+    --env_name InvertedPendulum-v4 \
+    --ep_len 1000 \
+    --discount 0.92 \
+    -n 100 \
+    -l 2 \
+    -s 64 \
+    -b 50 \
+    -lr 0.01 \
+    -rtg \
+    --exp_name q2_b50_r0.01_test
+
 \end{minted}
 \end{answer}
 
 \subsubsection{smallest \textbf{b*} and largest \textbf{r*} (same run) -- \lbrack1.5 points\rbrack}
 \begin{answer}[title=Q5.2.2,height=4cm,width=\linewidth]
-% TODO
+b*=50, r*=0.02
 \end{answer}
 
 \subsubsection{Plot -- \lbrack1 points\rbrack}
 \begin{answer}[title=Q5.2.3,height=10cm,width=\linewidth]
-% TODO
-\centering
-\includegraphics[height=8cm]{example-image-a}
+    \centering
+    \includegraphics[height=8cm, width=\linewidth]{plots_submission/section5_exp2_plot.png}
 \end{answer}
 
 \setcounter{section}{6}
@@ -173,8 +200,9 @@ python rob831/scripts/run_hw2.py --env_name InvertedPendulum-v4 \
 \begin{minted}
 [framesep=2mm, fontsize=\scriptsize, breaklines]
 {bash}
+Had to switch to v3
 python rob831/scripts/run_hw2.py \
-    --env_name LunarLanderContinuous-v4 --ep_len 1000
+    --env_name LunarLanderContinuous-v3 --ep_len 1000
     --discount 0.99 -n 100 -l 2 -s 64 -b 10000 -lr 0.005 \
     --reward_to_go --nn_baseline --exp_name q3_b10000_r0.005
 \end{minted}
@@ -184,7 +212,7 @@ python rob831/scripts/run_hw2.py \
 \begin{answer}[title=Q7.1.2,height=10cm,width=\linewidth]
 % TODO
 \centering
-\includegraphics[height=8cm]{example-image-a}
+\includegraphics[height=8cm,width=\linewidth]{plots_submission/section7_exp3_lunarlander_plot.png}
 \end{answer}
 
 \subsection{Experiment 4 (HalfCheetah) -- \lbrack1 points\rbrack}
@@ -213,24 +241,24 @@ python rob831/scripts/run_hw2.py --env_name HalfCheetah-v4 --ep_len 150 \
 \begin{answer}[title=Q7.2.2,height=10cm,width=\linewidth]
 % TODO
 \centering
-\includegraphics[height=8cm]{example-image-a}
+\includegraphics[height=8cm,width=\linewidth]{plots_submission/7_2_2_plot.png}
 \end{answer}
 
 \subsubsection{ Optimal b* and r* -- \lbrack0.5 points\rbrack}
 \begin{answer}[title=Q7.2.3,height=4cm,width=\linewidth]
-% TODO
+b15000, r0.02
 \end{answer}
 
 \subsubsection{ Plot -- \lbrack0.5 points\rbrack}
 \begin{answer}[title=Q7.2.4,height=10cm,width=\linewidth]
 % TODO
 \centering
-\includegraphics[height=8cm]{example-image-a}
+\includegraphics[height=8cm,width=\linewidth]{plots_submission/7_2_4_plot.png}
 \end{answer}
 
 \subsubsection{ Describe how b* and r* affect task performance -- \lbrack0.5 points\rbrack}
 \begin{answer}[title=Q7.2.5,height=4cm,width=\linewidth]
-% TODO
+A higher learning rate r* generally improves performance, while b* does not change performance much if comparing with the same r*.
 \end{answer}
 
 \subsubsection{Configurations with optimal b* and r* -- \lbrack0.5 points\rbrack}
@@ -240,20 +268,20 @@ python rob831/scripts/run_hw2.py --env_name HalfCheetah-v4 --ep_len 150 \
 [framesep=2mm, fontsize=\scriptsize, breaklines]
 {bash}
 python rob831/scripts/run_hw2.py --env_name HalfCheetah-v4 --ep_len 150 \
-    --discount 0.95 -n 100 -l 2 -s 32 -b <b*> -lr <r*> \
-    --exp_name q4_b<b*>_r<r*>
+    --discount 0.95 -n 100 -l 2 -s 32 -b b15000 -lr 0.02 \
+    --exp_name q4_b15000_r0.02
 
 python rob831/scripts/run_hw2.py --env_name HalfCheetah-v4 --ep_len 150 \
-    --discount 0.95 -n 100 -l 2 -s 32 -b <b*> -lr <r*> -rtg \
-    --exp_name q4_b<b*>_r<r*>_rtg
+    --discount 0.95 -n 100 -l 2 -s 32 -b b15000 -lr 0.02 -rtg \
+    --exp_name q4_b15000_r0.02_rtg
 
 python rob831/scripts/run_hw2.py --env_name HalfCheetah-v4 --ep_len 150 \
-    --discount 0.95 -n 100 -l 2 -s 32 -b <b*> -lr <r*> --nn_baseline \
-    --exp_name q4_b<b*>_r<r*>_nnbaseline
+    --discount 0.95 -n 100 -l 2 -s 32 -b b15000 -lr 0.02 --nn_baseline \
+    --exp_name q4_b15000_r0.02_nnbaseline
 
 python rob831/scripts/run_hw2.py --env_name HalfCheetah-v4 --ep_len 150 \
-    --discount 0.95 -n 100 -l 2 -s 32 -b <b*> -lr <r*> -rtg --nn_baseline \
-    --exp_name q4_b<b*>_r<r*>_rtg_nnbaseline
+    --discount 0.95 -n 100 -l 2 -s 32 -b b15000 -lr 0.02 -rtg --nn_baseline \
+    --exp_name q4_b15000_r0.02_rtg_nnbaseline
 \end{minted}
 \end{answer}
 
@@ -261,7 +289,7 @@ python rob831/scripts/run_hw2.py --env_name HalfCheetah-v4 --ep_len 150 \
 \begin{answer}[title=Q7.2.7,height=10cm,width=\linewidth]
 % TODO
 \centering
-\includegraphics[height=8cm]{example-image-a}
+\includegraphics[height=8cm,width=\linewidth]{plots_submission/7_2_7_plot.png}
 \end{answer}
 
 \section{Implementing Generalized Advantage Estimation}
@@ -286,12 +314,12 @@ python rob831/scripts/run_hw2.py \
 \begin{answer}[title=Q8.1.2,height=10cm,width=\linewidth]
 % TODO
 \centering
-\includegraphics[height=8cm]{example-image-a}
+\includegraphics[height=8cm,width=\linewidth]{plots_submission/8_1_2_plot.png}
 \end{answer}
 
 \subsubsection{Describe how $\lambda$ affects task performance -- \lbrack2 points\rbrack}
 \begin{answer}[title=Q8.1.3,height=4cm,width=\linewidth]
-% TODO
+Generally, a higher $\lambda$ leads to a higher return and better performance.
 \end{answer}
 
 \clearpage
@@ -301,12 +329,16 @@ python rob831/scripts/run_hw2.py \
 \subsection{Parallelization -- \lbrack1.5 points\rbrack}
 \begin{answer}[title=Q9.1,height=4cm,width=\linewidth]
 % TODO (optional)
-Difference in training time: 
+Difference in training time: 7.3 seconds
 \vspace{1.0cm}
 \begin{minted}
 [framesep=2mm, fontsize=\scriptsize, breaklines]
 {bash}
-python rob831/scripts/run_hw2.py \
+python rob831/scripts/run_hw2.py --env_name HalfCheetah-v4 \
+-n 10 -b 10000 -lr 0.02 --exp_name test_cheetah_no_parallel
+
+python rob831/scripts/run_hw2.py --env_name HalfCheetah-v4 \
+--num_workers 4 -n 10 -b 10000 -lr 0.02 --exp_name test_cheetah_parallel
 \end{minted}
 \end{answer}
 
@@ -314,13 +346,21 @@ python rob831/scripts/run_hw2.py \
 \begin{answer}[title=Q9.1,height=14cm,width=\linewidth]
 % TODO (optional)
 \centering
-\includegraphics[height=8cm]{example-image-a}
+\includegraphics[height=8cm,width=\linewidth]{plots_submission/9_2_plot.png}
 
 \vspace{1.0cm}
 \begin{minted}
 [framesep=2mm, fontsize=\scriptsize, breaklines]
 {bash}
-python rob831/scripts/run_hw2.py \
+# Steps=1
+python rob831/scripts/run_hw2.py --env_name "HalfCheetah-v4" --exp_name "multistep_comparison_steps1_seed1"
+--n_iter 100 --batch_size 5000 --eval_batch_size 5000 --learning_rate 0.02 --discount 0.95 --n_layers 2 --size 64 --seed 1
+--num_policy_gradient_steps_per_batch 1 --reward_to_go --nn_baseline --scalar_log_freq 1
+
+# Steps=3
+python rob831/scripts/run_hw2.py --env_name "HalfCheetah-v4" --exp_name "multistep_comparison_steps3_seed1"
+--n_iter 100 --batch_size 5000 --eval_batch_size 5000 --learning_rate 0.02 --discount 0.95 --n_layers 2 --size 64 --seed 1
+--num_policy_gradient_steps_per_batch 3 --reward_to_go --nn_baseline --scalar_log_freq 1
 \end{minted}
 
 \end{answer}
