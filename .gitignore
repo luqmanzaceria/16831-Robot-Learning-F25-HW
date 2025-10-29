@@ -19,3 +19,5 @@ build/
 data/
 *.pdf
 *.png
+submit/
+submission/
