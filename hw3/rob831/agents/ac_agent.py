@@ -41,8 +41,23 @@ class ACAgent(BaseAgent):
         #     update the actor
 
         loss = OrderedDict()
-        loss['Loss_Critic'] = TODO
-        loss['Loss_Actor'] = TODO
+
+        # Update the critic
+        critic_losses = []
+        for _ in range(self.agent_params['num_critic_updates_per_agent_update']):
+            critic_loss = self.critic.update(ob_no, ac_na, next_ob_no, re_n, terminal_n)
+            critic_losses.append(critic_loss)
+        loss['Loss_Critic'] = np.mean(critic_losses)
+
+        # Estimate advantage
+        advantage = self.estimate_advantage(ob_no, next_ob_no, re_n, terminal_n)
+
+        # Update the actor (policy)
+        actor_losses = []
+        for _ in range(self.agent_params['num_actor_updates_per_agent_update']):
+            actor_loss = self.actor.update(ob_no, ac_na, adv_n=advantage)
+            actor_losses.append(actor_loss)
+        loss['Loss_Actor'] = np.mean(actor_losses)
 
         return loss
 
@@ -53,10 +68,25 @@ class ACAgent(BaseAgent):
         # 3) estimate the Q value as Q(s, a) = r(s, a) + gamma*V(s')
         # HINT: Remember to cut off the V(s') term (ie set it to 0) at terminal states (ie terminal_n=1)
         # 4) calculate advantage (adv_n) as A(s, a) = Q(s, a) - V(s)
-        adv_n = TODO
+        # 1) Query critic with current observations: V(s)
+        v_s = self.critic.forward_np(ob_no)
+        v_s = v_s.reshape(-1)
+
+        # 2) Query critic with next_ob_no: V(s')
+        v_next_s = self.critic.forward_np(next_ob_no)
+        v_next_s = v_next_s.reshape(-1)
+
+        # 3) Q(s,a) = r(s,a) + gamma * V(s'), but cut V(s') at terminal states
+        gamma = self.agent_params['gamma']
+        # If terminal_n[i]==1, next state is terminal, so V(s') = 0 for that transition
+        v_next_s = v_next_s * (1 - terminal_n)
+        q_sa = re_n + gamma * v_next_s
+
+        # 4) Advantage: A(s,a) = Q(s,a) - V(s)
+        adv_n = q_sa - v_s
 
         if self.standardize_advantages:
-            adv_n = TODO
+            adv_n = (adv_n - np.mean(adv_n)) / (np.std(adv_n) + 1e-8)
         return adv_n
 
     def add_to_replay_buffer(self, paths):

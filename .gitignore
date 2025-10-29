@@ -14,3 +14,8 @@
 *.minted
 *.cpython-310.pyc
 __pycache__
+
+build/
+data/
+*.pdf
+*.png

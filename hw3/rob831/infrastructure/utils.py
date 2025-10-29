@@ -27,13 +27,14 @@ def calculate_mean_prediction_error(env, action_sequence, models, data_statistic
     return mpe, true_states, pred_states
 
 def perform_actions(env, actions):
-    ob = env.reset()
+    ob, _ = env.reset()
     obs, acs, rewards, next_obs, terminals, image_obs = [], [], [], [], [], []
     steps = 0
     for ac in actions:
         obs.append(ob)
         acs.append(ac)
-        ob, rew, done, _ = env.step(ac)
+        ob, rew, terminated, truncated, _ = env.step(ac)
+        done = terminated or truncated
         # add the observation after taking a step to next_obs
         next_obs.append(ob)
         rewards.append(rew)
@@ -55,27 +56,28 @@ def mean_squared_error(a, b):
 ############################################
 
 def sample_trajectory(env, policy, max_path_length, render=False, render_mode=('rgb_array')):
-    obs = env.reset()
+    obs, _ = env.reset()
     obses, acts, rews, nobses, terms, imgs = [], [], [], [], [], []
     steps = 0
     while True:
         if render:
             if 'rgb_array' in render_mode:
-                if hasattr(env.unwrapped, sim):
+                if hasattr(env.unwrapped, 'sim'):
                     if 'track' in env.unwrapped.model.camera_names:
                         imgs.append(env.unwrapped.sim.render(camera_name='track', height=500, width=500)[::-1])
                     else:
                         imgs.append(env.unwrapped.sim.render(height=500, width=500)[::-1])
 
             if 'human' in render_mode:
-                env.render(mode=render_mode)
+                env.render()
                 time.sleep(env.model.opt.timestep)
 
         obses.append(obs)
         act = policy.get_action(obs)
         act = act[0]
         acts.append(act)
-        nobs, rew, done, _ = env.step(act)
+        nobs, rew, terminated, truncated, _ = env.step(act)
+        done = terminated or truncated
         nobses.append(nobs)
         rews.append(rew)
         obs = nobs.copy()

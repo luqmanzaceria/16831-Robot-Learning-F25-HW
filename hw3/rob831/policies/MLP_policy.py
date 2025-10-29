@@ -96,7 +96,25 @@ class MLPPolicy(BasePolicy, nn.Module, metaclass=abc.ABCMeta):
 
     # update/train this policy
     def update(self, observations, actions, **kwargs):
-        raise NotImplementedError
+        # Implements policy gradient update step
+        self.optimizer.zero_grad()
+        # Forward pass: get action distribution
+        action_distribution = self.forward(ptu.from_numpy(observations))
+        # Compute log-probabilities of the actions taken
+        log_probs = action_distribution.log_prob(ptu.from_numpy(actions))
+        # For discrete, log_prob returns shape [batch], for continuous [batch, ac_dim] (sum if needed)
+        if not self.discrete:
+            log_probs = log_probs.sum(-1)
+        # Use advantages if provided through kwargs
+        weights = kwargs.get("adv_n", None)
+        if weights is not None:
+            weights = ptu.from_numpy(weights)
+            loss = -(log_probs * weights).mean()
+        else:
+            loss = -log_probs.mean()
+        loss.backward()
+        self.optimizer.step()
+        return loss.item()
 
     # This function defines the forward pass of the network.
     # You can return anything you want, but you should be able to differentiate
@@ -126,4 +144,19 @@ class MLPPolicy(BasePolicy, nn.Module, metaclass=abc.ABCMeta):
 class MLPPolicyAC(MLPPolicy):
     def update(self, observations, actions, adv_n=None):
         # TODO: update the policy and return the loss
+        self.optimizer.zero_grad()
+        # Forward pass: get action distribution
+        action_distribution = self.forward(ptu.from_numpy(observations))
+        # Compute log-probabilities of the actions taken
+        log_probs = action_distribution.log_prob(ptu.from_numpy(actions))
+        # For discrete, log_prob returns shape [batch], for continuous [batch, ac_dim] (sum if needed)
+        if not self.discrete:
+            log_probs = log_probs.sum(-1)
+        if adv_n is not None:
+            weights = ptu.from_numpy(adv_n)
+            loss = -(log_probs * weights).mean()
+        else:
+            loss = -log_probs.mean()
+        loss.backward()
+        self.optimizer.step()
         return loss.item()
